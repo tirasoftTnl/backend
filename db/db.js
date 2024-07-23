@@ -1,6 +1,11 @@
 const knex = require("knex");
 const knexfile = require('./knexfile');
 
-const db = knex(knexfile.development);
+const connection = knex(knexfile.development);
 
-module.exports = db;
+connection.batchUpdate = (table, data) => {
+  const { sql, bindings } = connection.insert(data).into(table).toSQL();
+  return connection.raw(sql.replace("insert", "replace"), bindings);
+};
+
+module.exports = connection;
